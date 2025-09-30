@@ -1,0 +1,68 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Express.js server with TypeScript for full-stack application",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:dev": "tsx src/index.ts",
+    "lint": "eslint src --ext .ts,.js --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext .ts,.js --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "helmet": "^8.0.0",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/http-errors": "^2.0.4",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.10.2",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "eslint": "^9.36.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "rimraf": "^6.0.1",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "express",
+    "typescript",
+    "nodejs",
+    "rest-api"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

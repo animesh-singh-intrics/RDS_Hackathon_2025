@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Commenter Tool - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            height: 70vh;
+        }
+
+        .input-section,
+        .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .char-count {
+            font-size: 0.9rem;
+            color: #666;
+            background: #f8f9fa;
+            padding: 5px 12px;
+            border-radius: 15px;
+        }
+
+        .char-count.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .char-count.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        #codeInput,
+        #commentedCode {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #codeInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #commentedCode {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .analysis-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .analysis-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .analysis-content {
+            color: #666;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .language-selector {
+            margin-bottom: 15px;
+        }
+
+        .language-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            font-size: 1rem;
+        }
+
+        .examples {
+            margin-bottom: 20px;
+        }
+
+        .example-btn {
+            background: #e9ecef;
+            color: #495057;
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: #dee2e6;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .copy-notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .split-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+
+        .warning-message {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .placeholder-text {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Code Commenter Tool</h1>
+            <p class="subtitle">Add professional comments to your code using AI-powered analysis</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="linesProcessed">0</span>
+                    <span>Lines Processed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="commentsAdded">0</span>
+                    <span>Comments Added</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="complexityScore">-</span>
+                    <span>Complexity Score</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-panel">
+            <div class="language-selector">
+                <label for="languageSelect"><strong>Language:</strong></label>
+                <select id="languageSelect">
+                    <option value="auto">Auto-detect</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="csharp">C#</option>
+                    <option value="php">PHP</option>
+                    <option value="ruby">Ruby</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                </select>
+            </div>
+
+            <div class="examples">
+                <strong>Try these examples:</strong>
+                <button class="example-btn" onclick="loadExample('fibonacci')">Fibonacci Function</button>
+                <button class="example-btn" onclick="loadExample('quicksort')">Quick Sort Algorithm</button>
+                <button class="example-btn" onclick="loadExample('api')">API Controller</button>
+                <button class="example-btn" onclick="loadExample('class')">Class Definition</button>
+            </div>
+
+            <div class="split-container">
+                <div class="input-section">
+                    <div class="section-header">
+                        <span class="section-title">📝 Input Code</span>
+                        <span class="char-count" id="inputCharCount">0 / 8000 characters</span>
+                    </div>
+                    <div class="warning-message">
+                        ⚠️ Maximum 1000 lines or 8000 characters. Complex code may take longer to process.
+                    </div>
+                    <textarea 
+                        id="codeInput" 
+                        placeholder="Paste your code here... 
+
+Examples:
+- Functions that need documentation
+- Complex algorithms
+- Class definitions
+- API endpoints
+- Database queries
+
+The AI will analyze your code and add professional comments following industry best practices."
+                    ></textarea>
+                </div>
+
+                <div class="output-section">
+                    <div class="section-header">
+                        <span class="section-title">✨ Commented Code</span>
+                        <button class="btn btn-success" id="copyBtn" onclick="copyToClipboard()" style="padding: 8px 16px; font-size: 0.9rem;">
+                            📋 Copy
+                        </button>
+                    </div>
+                    <textarea 
+                        id="commentedCode" 
+                        readonly
+                        placeholder="Your commented code will appear here...
+
+The AI will:
+✓ Add JSDoc/docstring documentation
+✓ Explain complex algorithms  
+✓ Document parameters and return values
+✓ Note edge cases and assumptions
+✓ Follow language-specific standards
+✓ Avoid redundant comments"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="commentBtn" onclick="commentCode()">
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                    🚀 Add Comments
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear All</button>
+                <button class="btn btn-secondary" onclick="downloadCode()">💾 Download</button>
+            </div>
+
+            <div class="analysis-section" id="analysisSection">
+                <div class="analysis-title">📊 Analysis Report</div>
+                <div class="analysis-content" id="analysisContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copy-notification" id="copyNotification">
+        ✅ Code copied to clipboard!
+    </div>
+
+    <script>
+        // Mock OpenRouter API integration (replace with actual API call)
+        const OPENROUTER_API_KEY = 'YOUR_API_KEY_HERE';
+        const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+        // Character and line limits
+        const MAX_CHARACTERS = 8000;
+        const MAX_LINES = 1000;
+
+        // Example code snippets
+        const examples = {
+            fibonacci: `function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}`,
+            quicksort: `function quickSort(arr) {
+    if (arr.length <= 1) return arr;
+    const pivot = arr[Math.floor(arr.length / 2)];
+    const left = arr.filter(x => x < pivot);
+    const right = arr.filter(x => x > pivot);
+    return [...quickSort(left), pivot, ...quickSort(right)];
+}`,
+            api: `async function getUserById(req, res) {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}`,
+            class: `class BankAccount {
+    constructor(accountNumber, initialBalance) {
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+        this.transactions = [];
+    }
+
+    deposit(amount) {
+        if (amount <= 0) throw new Error('Amount must be positive');
+        this.balance += amount;
+        this.transactions.push({ type: 'deposit', amount, date: new Date() });
+        return this.balance;
+    }
+
+    withdraw(amount) {
+        if (amount <= 0) throw new Error('Amount must be positive');
+        if (amount > this.balance) throw new Error('Insufficient funds');
+        this.balance -= amount;
+        this.transactions.push({ type: 'withdrawal', amount, date: new Date() });
+        return this.balance;
+    }
+}`
+        };
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('codeInput');
+            codeInput.addEventListener('input', updateCharCount);
+            updateCharCount(); // Initial count
+        });
+
+        function updateCharCount() {
+            const input = document.getElementById('codeInput');
+            const charCount = document.getElementById('inputCharCount');
+            const currentLength = input.value.length;
+            const lineCount = input.value.split('\n').length;
+            
+            charCount.textContent = `${currentLength} / ${MAX_CHARACTERS} characters (${lineCount} lines)`;
+            
+            // Update styling based on limits
+            charCount.className = 'char-count';
+            if (currentLength > MAX_CHARACTERS * 0.8 || lineCount > MAX_LINES * 0.8) {
+                charCount.classList.add('warning');
+            }
+            if (currentLength > MAX_CHARACTERS || lineCount > MAX_LINES) {
+                charCount.classList.add('error');
+            }
+        }
+
+        function loadExample(type) {
+            document.getElementById('codeInput').value = examples[type];
+            updateCharCount();
+        }
+
+        async function commentCode() {
+            const input = document.getElementById('codeInput').value.trim();
+            const output = document.getElementById('commentedCode');
+            const analysisSection = document.getElementById('analysisSection');
+            const analysisContent = document.getElementById('analysisContent');
+            const commentBtn = document.getElementById('commentBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            if (!input) {
+                alert('Please enter some code to comment.');
+                return;
+            }
+
+            if (input.length > MAX_CHARACTERS) {
+                alert(`Code is too long. Please limit to ${MAX_CHARACTERS} characters.`);
+                return;
+            }
+
+            if (input.split('\n').length > MAX_LINES) {
+                alert(`Code has too many lines. Please limit to ${MAX_LINES} lines.`);
+                return;
+            }
+
+            // Show loading state
+            commentBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            output.value = 'Analyzing your code and adding professional comments...\n\nThis may take 10-30 seconds depending on code complexity.';
+
+            try {
+                // Simulate API call (replace with actual OpenRouter API integration)
+                const result = await simulateAPICall(input);
+                
+                output.value = result.commentedCode;
+                analysisContent.textContent = result.analysis;
+                analysisSection.style.display = 'block';
+
+                // Update stats
+                updateStats(result.stats);
+
+            } catch (error) {
+                console.error('Error:', error);
+                output.value = 'Error processing code. Please try again.\n\nError details: ' + error.message;
+            } finally {
+                // Hide loading state
+                commentBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        async function simulateAPICall(code) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Mock response (replace with actual OpenRouter API call)
+            const lines = code.split('\n');
+            const complexity = Math.min(10, Math.max(1, Math.floor(lines.length / 5) + 2));
+            
+            const commentedCode = addMockComments(code);
+            const commentsAdded = (commentedCode.match(/\/\*\*|\*\/|#|\/\/|"""/g) || []).length;
+            
+            return {
+                commentedCode: commentedCode,
+                analysis: `Code Analysis Summary:
+• Language: ${detectLanguage(code)}
+• Complexity Score: ${complexity}/10
+• Lines of Code: ${lines.length}
+• Comments Added: ${commentsAdded}
+• Functions Documented: ${(code.match(/function|def |class |async /g) || []).length}
+
+Key Improvements:
+• Added comprehensive JSDoc/docstring documentation
+• Documented function parameters and return values
+• Explained complex algorithms and business logic
+• Added error handling documentation
+• Included performance and security considerations
+
+Best Practices Applied:
+✓ Clear, concise comment descriptions
+✓ Proper formatting for language standards
+✓ Avoided redundant obvious comments
+✓ Focused on WHY rather than WHAT
+✓ Added edge case documentation`,
+                stats: {
+                    linesProcessed: lines.length,
+                    commentsAdded: commentsAdded,
+                    complexityScore: complexity
+                }
+            };
+        }
+
+        function addMockComments(code) {
+            // Simple mock commenting (replace with actual LLM processing)
+            let commented = code;
+
+            // Add function documentation
+            commented = commented.replace(
+                /(function\s+\w+\s*\([^)]*\))/g, 
+                '/**\n * [Function description would be added here by the LLM]\n * @param {type} param - Parameter description\n * @return {type} Return value description\n */\n$1'
+            );
+
+            // Add class documentation
+            commented = commented.replace(
+                /(class\s+\w+)/g,
+                '/**\n * [Class description would be added here by the LLM]\n */\n$1'
+            );
+
+            // Add inline comments for complex logic
+            commented = commented.replace(
+                /(if\s*\([^)]+\))/g,
+                '// [Complex condition explanation would be added here]\n        $1'
+            );
+
+            return commented;
+        }
+
+        function detectLanguage(code) {
+            if (code.includes('function') || code.includes('const') || code.includes('let')) return 'JavaScript';
+            if (code.includes('def ') || code.includes('import ')) return 'Python';
+            if (code.includes('public class') || code.includes('private ')) return 'Java';
+            if (code.includes('#include') || code.includes('int main')) return 'C++';
+            return 'Unknown';
+        }
+
+        function updateStats(stats) {
+            document.getElementById('linesProcessed').textContent = stats.linesProcessed;
+            document.getElementById('commentsAdded').textContent = stats.commentsAdded;
+            document.getElementById('complexityScore').textContent = stats.complexityScore + '/10';
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('commentedCode');
+            output.select();
+            document.execCommand('copy');
+            
+            const notification = document.getElementById('copyNotification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function clearAll() {
+            document.getElementById('codeInput').value = '';
+            document.getElementById('commentedCode').value = '';
+            document.getElementById('analysisSection').style.display = 'none';
+            updateCharCount();
+            
+            // Reset stats
+            document.getElementById('linesProcessed').textContent = '0';
+            document.getElementById('commentsAdded').textContent = '0';
+            document.getElementById('complexityScore').textContent = '-';
+        }
+
+        function downloadCode() {
+            const code = document.getElementById('commentedCode').value;
+            if (!code) {
+                alert('No commented code to download.');
+                return;
+            }
+
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'commented-code.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

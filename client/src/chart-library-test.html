@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Chart Library Testing - DataViz Pro</title>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- D3.js CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chart-section h3 {
+            color: #1e293b;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-section p {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: relative;
+            height: 400px;
+        }
+        
+        .old-chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        /* Old HTML/CSS Chart Styles */
+        .old-bar-chart {
+            display: flex;
+            align-items: end;
+            height: 250px;
+            gap: 15px;
+            padding: 20px 0;
+            background: linear-gradient(to top, #f1f5f9 0%, transparent 100%);
+            border-radius: 8px;
+        }
+        
+        .old-bar {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            min-height: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        .old-bar:hover {
+            transform: scaleY(1.05);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .old-bar-label {
+            position: absolute;
+            bottom: -30px;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .old-bar-value {
+            position: absolute;
+            top: -25px;
+            font-size: 11px;
+            color: #1e293b;
+            font-weight: 600;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .pros, .cons {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .pros {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .cons {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+        
+        .pros h4 {
+            color: #16a34a;
+            margin-bottom: 8px;
+        }
+        
+        .cons h4 {
+            color: #dc2626;
+            margin-bottom: 8px;
+        }
+        
+        .pros ul, .cons ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .pros li, .cons li {
+            margin-bottom: 5px;
+            padding-left: 15px;
+            position: relative;
+            font-size: 14px;
+        }
+        
+        .pros li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #16a34a;
+            font-weight: bold;
+        }
+        
+        .cons li::before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+            color: #dc2626;
+            font-weight: bold;
+        }
+        
+        .test-controls {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .test-controls h3 {
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .data-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        
+        .recommendation {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .recommendation h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .d3-chart svg {
+            width: 100%;
+            height: 350px;
+        }
+        
+        .d3-bar {
+            fill: #3b82f6;
+            transition: fill 0.3s ease;
+        }
+        
+        .d3-bar:hover {
+            fill: #1d4ed8;
+        }
+        
+        .d3-axis {
+            font-size: 12px;
+        }
+        
+        .d3-axis path,
+        .d3-axis line {
+            fill: none;
+            stroke: #64748b;
+            shape-rendering: crispEdges;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Advanced Chart Library Testing</h1>
+            <p>Comparing different approaches for DataViz Pro chart generation</p>
+        </div>
+        
+        <div class="content">
+            <!-- Test Controls -->
+            <div class="test-controls">
+                <h3>🧪 Test Different Datasets</h3>
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="loadSampleData('sales')">Sales Data</button>
+                    <button class="btn btn-primary" onclick="loadSampleData('users')">User Analytics</button>
+                    <button class="btn btn-primary" onclick="loadSampleData('revenue')">Revenue Trends</button>
+                    <button class="btn btn-secondary" onclick="generateRandomData()">Random Data</button>
+                </div>
+                
+                <div class="data-preview" id="data-preview">
+                    <strong>Current Dataset:</strong> Click a button above to load test data
+                </div>
+            </div>
+            
+            <!-- Comparison Grid -->
+            <div class="comparison-grid">
+                <!-- Current Approach (HTML/CSS) -->
+                <div class="chart-section">
+                    <h3>🏚️ Current: HTML/CSS Charts</h3>
+                    <p>AI-generated native HTML with CSS styling. Simple but limited scaling and visual quality.</p>
+                    
+                    <div class="old-chart-container">
+                        <h4 style="margin-bottom: 15px; color: #374151;">Sample Bar Chart</h4>
+                        <div class="old-bar-chart" id="old-chart">
+                            <!-- Old bars will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>Pros</h4>
+                            <ul>
+                                <li>No external dependencies</li>
+                                <li>Lightweight</li>
+                                <li>Easy AI generation</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>Cons</h4>
+                            <ul>
+                                <li>Poor scaling accuracy</li>
+                                <li>Limited chart types</li>
+                                <li>Basic visual quality</li>
+                                <li>No proper axes/labels</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chart.js Approach -->
+                <div class="chart-section">
+                    <h3>🚀 Solution 1: Chart.js</h3>
+                    <p>Professional charting library with excellent scaling, animations, and responsive design.</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="chartjs-chart"></canvas>
+                    </div>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>Pros</h4>
+                            <ul>
+                                <li>Perfect scaling & proportions</li>
+                                <li>Professional animations</li>
+                                <li>Responsive design</li>
+                                <li>Many chart types</li>
+                                <li>Active community</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>Cons</h4>
+                            <ul>
+                                <li>Additional dependency (~60KB)</li>
+                                <li>Need to generate config objects</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- D3.js Approach -->
+                <div class="chart-section">
+                    <h3>⚡ Solution 2: D3.js</h3>
+                    <p>Ultimate flexibility for custom visualizations with SVG rendering and data binding.</p>
+                    
+                    <div class="chart-container">
+                        <div class="d3-chart" id="d3-chart">
+                            <!-- D3 SVG will be created here -->
+                        </div>
+                    </div>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>Pros</h4>
+                            <ul>
+                                <li>Unlimited customization</li>
+                                <li>SVG precision</li>
+                                <li>Advanced animations</li>
+                                <li>Data binding</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>Cons</h4>
+                            <ul>
+                                <li>Steeper learning curve</li>
+                                <li>Larger bundle size (~200KB)</li>
+                                <li>More complex AI generation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Recharts -->
+                <div class="chart-section">
+                    <h3>⚛️ Solution 3: Enhanced Recharts</h3>
+                    <p>React-native charting with component-based architecture (already in your dependencies).</p>
+                    
+                    <div class="chart-container" style="display: flex; align-items: center; justify-content: center; color: #64748b;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">⚛️</div>
+                            <p>React Component Integration</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Would require React context for full demo</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>Pros</h4>
+                            <ul>
+                                <li>Already in dependencies</li>
+                                <li>React-native integration</li>
+                                <li>Component-based</li>
+                                <li>TypeScript support</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>Cons</h4>
+                            <ul>
+                                <li>React-only</li>
+                                <li>Limited in iframe context</li>
+                                <li>AI needs component generation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendation Section -->
+            <div class="recommendation">
+                <h3>🎯 Recommended Solution: Hybrid Chart.js Approach</h3>
+                <p><strong>Strategy:</strong> Instead of AI generating HTML/CSS, have AI generate Chart.js configuration objects. This gives us professional charts with perfect scaling while maintaining the flexibility of AI-driven visualization decisions.</p>
+                
+                <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    <strong>Implementation:</strong>
+                    <ol style="margin-top: 10px; padding-left: 20px;">
+                        <li>AI analyzes CSV data structure</li>
+                        <li>AI generates Chart.js config JSON instead of HTML</li>
+                        <li>Frontend creates Chart.js instances with the config</li>
+                        <li>Result: Professional, scalable, interactive charts</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample datasets for testing
+        const datasets = {
+            sales: {
+                labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'],
+                data: [45000, 52000, 48000, 61000],
+                title: 'Quarterly Sales Performance'
+            },
+            users: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                data: [1200, 1900, 3000, 5000, 4200, 6800],
+                title: 'Monthly Active Users'
+            },
+            revenue: {
+                labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
+                data: [25000, 35000, 15000, 42000, 28000],
+                title: 'Revenue by Product'
+            }
+        };
+
+        let currentData = datasets.sales;
+        let chartjsChart = null;
+
+        // Initialize charts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSampleData('sales');
+        });
+
+        function loadSampleData(type) {
+            currentData = datasets[type];
+            updateDataPreview();
+            updateAllCharts();
+        }
+
+        function generateRandomData() {
+            const labels = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
+            const data = labels.map(() => Math.floor(Math.random() * 10000) + 1000);
+            
+            currentData = {
+                labels: labels,
+                data: data,
+                title: 'Random Test Data'
+            };
+            
+            updateDataPreview();
+            updateAllCharts();
+        }
+
+        function updateDataPreview() {
+            const preview = document.getElementById('data-preview');
+            preview.innerHTML = `
+                <strong>Current Dataset: ${currentData.title}</strong><br>
+                Labels: ${JSON.stringify(currentData.labels)}<br>
+                Data: ${JSON.stringify(currentData.data)}
+            `;
+        }
+
+        function updateAllCharts() {
+            updateOldChart();
+            updateChartJS();
+            updateD3Chart();
+        }
+
+        // Update old HTML/CSS chart
+        function updateOldChart() {
+            const container = document.getElementById('old-chart');
+            container.innerHTML = '';
+            
+            const maxValue = Math.max(...currentData.data);
+            
+            currentData.labels.forEach((label, index) => {
+                const value = currentData.data[index];
+                const height = (value / maxValue) * 100;
+                
+                const bar = document.createElement('div');
+                bar.className = 'old-bar';
+                bar.style.height = height + '%';
+                bar.innerHTML = `
+                    <span class="old-bar-label">${label}</span>
+                    <span class="old-bar-value">${value.toLocaleString()}</span>
+                `;
+                
+                container.appendChild(bar);
+            });
+        }
+
+        // Update Chart.js chart
+        function updateChartJS() {
+            const ctx = document.getElementById('chartjs-chart').getContext('2d');
+            
+            if (chartjsChart) {
+                chartjsChart.destroy();
+            }
+            
+            chartjsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: currentData.labels,
+                    datasets: [{
+                        label: currentData.title,
+                        data: currentData.data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+
+        // Update D3.js chart
+        function updateD3Chart() {
+            const container = d3.select('#d3-chart');
+            container.selectAll('*').remove();
+            
+            const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+            const width = container.node().clientWidth - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+            
+            const svg = container.append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom);
+            
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            const x = d3.scaleBand()
+                .range([0, width])
+                .domain(currentData.labels)
+                .padding(0.1);
+            
+            const y = d3.scaleLinear()
+                .range([height, 0])
+                .domain([0, d3.max(currentData.data)]);
+            
+            // Add X axis
+            g.append('g')
+                .attr('class', 'd3-axis')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+            
+            // Add Y axis
+            g.append('g')
+                .attr('class', 'd3-axis')
+                .call(d3.axisLeft(y).tickFormat(d3.format('.0s')));
+            
+            // Add bars
+            g.selectAll('.d3-bar')
+                .data(currentData.data)
+                .enter().append('rect')
+                .attr('class', 'd3-bar')
+                .attr('x', (d, i) => x(currentData.labels[i]))
+                .attr('width', x.bandwidth())
+                .attr('y', height)
+                .attr('height', 0)
+                .transition()
+                .duration(1000)
+                .attr('y', d => y(d))
+                .attr('height', d => height - y(d));
+            
+            // Add value labels on bars
+            g.selectAll('.bar-label')
+                .data(currentData.data)
+                .enter().append('text')
+                .attr('class', 'bar-label')
+                .attr('x', (d, i) => x(currentData.labels[i]) + x.bandwidth() / 2)
+                .attr('y', d => y(d) - 5)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .style('fill', '#374151')
+                .text(d => d.toLocaleString());
+        }
+    </script>
+</body>
+</html>
